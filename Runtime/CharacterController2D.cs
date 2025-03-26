@@ -5,7 +5,7 @@ public class CharacterController2D : MonoBehaviour
 {
     Rigidbody2D rb;
 
-    public float Speed => rb.velocity.magnitude;
+    public float Speed => rb.linearVelocity.magnitude;
 
     private void Awake()
     {
@@ -14,12 +14,11 @@ public class CharacterController2D : MonoBehaviour
 
     public void Move(Vector2 direction, float speed, float maxSpeed)
     {
-        rb.AddForce(speed * direction);
-        rb.velocity = Vector2.ClampMagnitude(rb.velocity, maxSpeed);
+        rb.linearVelocity = Vector2.ClampMagnitude(direction * speed, maxSpeed);
     }
 
     public void SetVelocity(Vector2 velocity)
     {
-        rb.velocity = velocity;
+        rb.linearVelocity = velocity;
     }
 }
