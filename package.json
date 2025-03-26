@@ -1,6 +1,6 @@
 {
   "name": "com.joshuapelican.joshutils",
-  "version": "1.1,1",
+  "version": "1.1.1",
   "displayName": "Josh's Utilities",
   "description": "Helpful utilities for unity game development.",
   "dependencies": { },
