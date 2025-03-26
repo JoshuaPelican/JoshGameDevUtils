@@ -1,0 +1,13 @@
+{
+  "name": "com.joshuapelican.joshutils",
+  "version": "1.0.1",
+  "displayName": "Josh's Utilities",
+  "description": "Helpful utilities for game development.",
+  "dependencies": { },
+  "author": {
+    "name": "Joshua Pelican",
+    "email": "pelkingtonj@gmail.com",
+    "url": "https://joshuapelican.github.io"
+  }
+}
+
