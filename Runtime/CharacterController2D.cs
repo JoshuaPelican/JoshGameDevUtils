@@ -14,9 +14,7 @@ public class CharacterController2D : MonoBehaviour
 
     public void Move(Vector2 direction, float speed, float maxSpeed)
     {
-        Vector2 step = Vector2.MoveTowards(rb.position, rb.position + direction * speed, maxSpeed * Time.deltaTime);
-        rb.MovePosition(step);
-        //rb.linearVelocity = Vector2.ClampMagnitude(direction * speed, maxSpeed);
+        rb.linearVelocity = Vector2.ClampMagnitude(direction * speed, maxSpeed);
     }
 
     public void SetVelocity(Vector2 velocity)
