@@ -1,7 +1,6 @@
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Audio;
-using System.Collections.Generic;
-using UnityEngine.UIElements;
 
 public class AudioManager : MonoBehaviour
 {
@@ -9,8 +8,7 @@ public class AudioManager : MonoBehaviour
 
     [SerializeField] AudioMixer audioMixer;
 
-    AudioSource[] sources;
-    int nextSourceIndex;
+    ObjectPool sourcePool;
     Dictionary<int, AudioSource> activeSources;
 
     private void Awake()
@@ -30,40 +28,28 @@ public class AudioManager : MonoBehaviour
 
     void InitializeSources()
     {
-        nextSourceIndex = -1;
+        GameObject sourceGO = new GameObject($"Audio Source Base");
+        sourceGO.transform.SetParent(transform);
+        AudioSource source = sourceGO.AddComponent<AudioSource>();
+
+        source.loop = false;
+        source.playOnAwake = false;
+        source.spatialBlend = 1f; // 3D sound
+        source.rolloffMode = AudioRolloffMode.Linear;
+        source.minDistance = 1f; // Default min distance
+        source.maxDistance = 20f; // Default max distance
+        source.dopplerLevel = 0f; // Disable doppler effect by default
+
+        AudioConfiguration config = AudioSettings.GetConfiguration();
+        sourcePool = ObjectPoolManager.Instance.CreatePool(source, config.numRealVoices, config.numVirtualVoices);
         activeSources = new Dictionary<int, AudioSource>();
-        sources = new AudioSource[AudioSettings.GetConfiguration().numRealVoices];
 
-        for (int i = 0; i < sources.Length; i++)
-        {
-            GameObject sourceGO = new GameObject($"Audio Source {i}");
-            sourceGO.transform.SetParent(transform);
-            sources[i] = sourceGO.AddComponent<AudioSource>();
-
-            // Configure for 3D audio
-            sources[i].loop = false;
-            sources[i].playOnAwake = false;
-            sources[i].spatialBlend = 1f; // 3D sound
-            sources[i].rolloffMode = AudioRolloffMode.Linear;
-            sources[i].minDistance = 1f; // Default min distance
-            sources[i].maxDistance = 20f; // Default max distance
-            sources[i].dopplerLevel = 0f; // Disable doppler effect by default
-        }
+        Destroy(sourceGO, 1);
     }
 
-    AudioSource GetNextSource()
+    bool IsFreeSource(AudioSource source)
     {
-        int startIndex = nextSourceIndex;
-        do
-        {
-            nextSourceIndex = (nextSourceIndex + 1) % sources.Length;
-            if (!sources[nextSourceIndex].isPlaying)
-                return sources[nextSourceIndex];
-
-        } while (nextSourceIndex != startIndex);
-
-        // If all sources are busy, return the next one anyway (will interrupt oldest sound)
-        return sources[nextSourceIndex];
+        return !source.isPlaying;
     }
 
     public int PlayClip2D(AudioClip clip, float volume = 1f, float pitch = 1f,
@@ -83,7 +69,7 @@ public class AudioManager : MonoBehaviour
         bool loop, float spacialBlend, float minDistance, float maxDistance,
         string mixerGroupName = null)
     {
-        AudioSource source = GetNextSource();
+        AudioSource source = (AudioSource)sourcePool.Get();
         source.transform.position = position;
         source.spatialBlend = spacialBlend;
 
@@ -157,6 +143,7 @@ public class AudioManager : MonoBehaviour
         if (activeSources.TryGetValue(sourceID, out AudioSource source))
         {
             source.Stop();
+            sourcePool.Return(source);
             activeSources.Remove(sourceID);
         }
     }
@@ -167,7 +154,7 @@ public class AudioManager : MonoBehaviour
         List<int> toRemove = new List<int>();
         foreach (var kvp in activeSources)
         {
-            if (!kvp.Value.isPlaying && !kvp.Value.loop)
+            if (IsFreeSource(kvp.Value))
             {
                 toRemove.Add(kvp.Key);
             }
@@ -175,7 +162,7 @@ public class AudioManager : MonoBehaviour
 
         foreach (int id in toRemove)
         {
-            activeSources.Remove(id);
+            StopSound(id);
         }
     }
 }
