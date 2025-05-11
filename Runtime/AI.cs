@@ -105,7 +105,7 @@ namespace AI
             this.blackboard = blackboard;
         }
 
-        public abstract void Update();
+        public abstract void Update(float delta);
     }
 
     public class StateTransition
@@ -154,12 +154,12 @@ namespace AI
             transitions[fromState].Add(new StateTransition(toState, conditions));
         }
 
-        public override void Update()
+        public override void Update(float delta)
         {
             if (currentState == null) return;
 
             currentState.Execute();
-            currentStateTimer += Time.deltaTime;
+            currentStateTimer += delta;
 
             if (currentStateTimer < currentState.Duration)
                 return;
@@ -205,7 +205,7 @@ namespace AI
             stateUtilities.Add((state, utilityFunction));
         }
 
-        public override void Update()
+        public override void Update(float delta)
         {
             if (stateUtilities.Count == 0) return;
 
