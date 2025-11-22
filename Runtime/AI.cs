@@ -8,32 +8,7 @@ using UnityEditor.Overlays;
 
 namespace AI
 {
-    public interface ICondition
-    {
-        public bool IsInverted { get; }
-
-        bool Evaluate(Blackboard blackboard);
-    }
-
-    public abstract class ConditionBase : ICondition
-    {
-        public bool IsInverted { get; }
-
-        public ConditionBase(bool isInverted = false)
-        {
-            IsInverted = isInverted;
-        }
-
-        public bool Evaluate(Blackboard blackboard)
-        {
-            bool result = EvaluateCondition(blackboard);
-            return IsInverted ? !result : result;
-        }
-
-        protected abstract bool EvaluateCondition(Blackboard blackboard);
-    }
-
-
+    public delegate bool Condition(Blackboard bb);
 
     public class Blackboard
     {
@@ -119,10 +94,10 @@ namespace AI
 
     public class StateTransition
     {
-        protected ICondition[] conditions;
+        protected Condition[] conditions;
         protected IState toState;
 
-        public StateTransition(IState toState, params ICondition[] conditions)
+        public StateTransition(IState toState, params Condition[] conditions)
         {
             this.conditions = conditions;
             this.toState = toState;
@@ -133,9 +108,9 @@ namespace AI
             if (conditions.Length == 0) // No conditions, always able to transition
                 return true;
 
-            foreach (ICondition condition in conditions)
+            foreach (Condition condition in conditions)
             {
-                if (condition.Evaluate(blackboard) == true)
+                if (condition(blackboard) == true)
                     return true;
             }
             return false;
@@ -155,7 +130,7 @@ namespace AI
             transitions = new Dictionary<IState, List<StateTransition>>();
         }
 
-        public void AddTransition(IState fromState, IState toState, params ICondition[] conditions)
+        public void AddTransition(IState fromState, IState toState, params Condition[] conditions)
         {
             if (!transitions.ContainsKey(fromState))
                 transitions[fromState] = new List<StateTransition>();
