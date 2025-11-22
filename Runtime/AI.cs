@@ -43,7 +43,7 @@ namespace AI
             }
         }
 
-        public Blackboard With<T>(string key, T value)
+        public Blackboard With<T>(string key, T value = default)
         {
             Set(key, value);
             return this;
@@ -72,11 +72,11 @@ namespace AI
             Duration = duration;
         }
 
-        public abstract void Enter(Blackboard bb);
+        public virtual void Enter(Blackboard bb) { }
 
-        public abstract void Update(Blackboard bb);
+        public virtual void Update(Blackboard bb) { }
 
-        public abstract void Exit(Blackboard bb);
+        public virtual void Exit(Blackboard bb) { }
     }
 
     public abstract class DecisionMakerBase
