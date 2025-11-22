@@ -72,28 +72,30 @@ namespace AI
     public interface IState
     {
         public float Duration { get; } // Duration 0 is endless until transition
-        public void Enter();
-        public void Update();
-        public void Exit();
+        public void Enter(Blackboard bb);
+        public void Update(Blackboard bb);
+        public void Exit(Blackboard bb);
     }
 
     public abstract class StateBase : IState
     {
         public float Duration { get; }
 
-        protected Blackboard blackboard;
-
-        public StateBase(Blackboard blackboard, float duration = 0)
+        public StateBase()
         {
-            this.blackboard = blackboard;
+            Duration = 0;
+        }
+
+        public StateBase(float duration)
+        {
             Duration = duration;
         }
 
-        public abstract void Enter();
+        public abstract void Enter(Blackboard bb);
 
-        public abstract void Update();
+        public abstract void Update(Blackboard bb);
 
-        public abstract void Exit();
+        public abstract void Exit(Blackboard bb);
     }
 
     public abstract class DecisionMakerBase
@@ -158,7 +160,7 @@ namespace AI
         {
             if (currentState == null) return;
 
-            currentState.Update();
+            currentState.Update(blackboard);
             currentStateTimer += delta;
 
             if (currentStateTimer < currentState.Duration)
@@ -184,10 +186,10 @@ namespace AI
         public void ChangeState(IState toState)
         {
             Debug.Log($"State changed from {currentState} to {toState}");
-            currentState?.Exit();
+            currentState?.Exit(blackboard);
             currentState = toState;
             currentStateTimer = 0;
-            toState.Enter();
+            toState.Enter(blackboard);
         }
     }
 
@@ -214,7 +216,7 @@ namespace AI
                 .OrderByDescending(s => s.Item2(blackboard))
                 .First().Item1;
 
-            bestState.Update();
+            bestState.Update(blackboard);
         }
     }
 }
