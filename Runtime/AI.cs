@@ -73,7 +73,7 @@ namespace AI
     {
         public float Duration { get; } // Duration 0 is endless until transition
         public void Enter();
-        public void Execute();
+        public void Update();
         public void Exit();
     }
 
@@ -91,7 +91,7 @@ namespace AI
 
         public abstract void Enter();
 
-        public abstract void Execute();
+        public abstract void Update();
 
         public abstract void Exit();
     }
@@ -158,7 +158,7 @@ namespace AI
         {
             if (currentState == null) return;
 
-            currentState.Execute();
+            currentState.Update();
             currentStateTimer += delta;
 
             if (currentStateTimer < currentState.Duration)
@@ -214,7 +214,7 @@ namespace AI
                 .OrderByDescending(s => s.Item2(blackboard))
                 .First().Item1;
 
-            bestState.Execute();
+            bestState.Update();
         }
     }
 }
