@@ -3,6 +3,7 @@ using System;
 using UnityEngine;
 using System.Linq;
 using Random = UnityEngine.Random;
+using UnityEditor.Overlays;
 
 
 namespace AI
@@ -43,7 +44,7 @@ namespace AI
             data = new Dictionary<string, object>();
         }
 
-        public T GetData<T>(string key)
+        public T Get<T>(string key)
         {
             try
             {
@@ -56,7 +57,7 @@ namespace AI
             }
         }
 
-        public void SetData<T>(string key, T value)
+        public void Set<T>(string key, T value)
         {
             try
             {
@@ -66,6 +67,12 @@ namespace AI
             {
                 Debug.LogError(e.Message);
             }
+        }
+
+        public Blackboard With<T>(string key, T value)
+        {
+            Set(key, value);
+            return this;
         }
     }
 
