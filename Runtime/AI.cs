@@ -83,7 +83,7 @@ namespace AI
 
         protected Blackboard blackboard;
 
-        public StateBase(Blackboard blackboard, float duration)
+        public StateBase(Blackboard blackboard, float duration = 0)
         {
             this.blackboard = blackboard;
             Duration = duration;
