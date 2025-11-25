@@ -121,6 +121,7 @@ namespace AI
     public class FSMDecisionMaker : DecisionMakerBase
     {
         private IState currentState;
+        public IState CurrentState => currentState;
         private float currentStateTimer;
         private Dictionary<IState, List<StateTransition>> transitions;
 
